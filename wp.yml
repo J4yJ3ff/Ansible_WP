@@ -1,0 +1,21 @@
+---
+
+- name: Wordpress Playbook
+  hosts: all
+  become: yes
+
+
+  tasks:
+
+  - name: Update repo Index
+    apt: 
+      force_apt_get=yes
+
+  - name: Install Apache
+    apt:
+      name: apache2
+
+  - name: Start Apache2
+    service:
+      name: apache2
+      state: started

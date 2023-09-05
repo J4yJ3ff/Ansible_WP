@@ -7,15 +7,16 @@
 
   tasks:
 
-  - name: Update repo Index
-    apt: 
-      force_apt_get=yes
-
-  - name: Install Apache
+  - name: Install Apache2 and PHP package then Update repo index
     apt:
-      name: apache2
+      name: 
+        - apache2
+        - libapache2-mod-php
+      state: latest
+      force_apt_get: yes
 
   - name: Start Apache2
     service:
       name: apache2
       state: started
+

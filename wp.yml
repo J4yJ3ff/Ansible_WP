@@ -2,6 +2,7 @@
 
 - name: Wordpress Playbook
   hosts: all
+  user: debian
   become: yes
 
 
@@ -12,6 +13,16 @@
       name: 
         - apache2
         - libapache2-mod-php
+        - wget
+        - php-mysql
+        - php
+        - php-curl
+        - php-json
+        - php-cgi
+        - python3
+        - python3-pexpect
+        - python3-mysqldb
+        - python-pip
       state: latest
       force_apt_get: yes
 
@@ -19,4 +30,35 @@
     service:
       name: apache2
       state: started
+
+  - name: Install MySQL Server
+    apt: 
+      name: 
+        - default-mysql-server
+      state: latest
+
+  - name: Start MySQL Service
+    service: 
+      name: mariadb
+      state: started
+
+  - name: Creating a User
+    mysql_user:
+      name: root
+      host: localhost
+      password: password
+      login_user: root
+      login_password: password
+      check_implicit_admin: yes
+      priv: '*.*:ALL,GRANR'
+      service: present 
+
+  - name: Create a db called Wordpress
+    mysql_db:
+      name: wordpress
+      state: present
+
+  - name: Reload privilege tables
+    command: mysql -e "FLUSH PRIVILEGES;"
+
 

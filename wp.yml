@@ -53,14 +53,12 @@
       host_all: true
       state: absent
 
-  - name: Create database user with name 'debian' and password 'password' with all database privileges
+  - name: "Create database user with name 'debian' and password 'password' with all database privileges"
     community.mysql.mysql_user:
       name: debian
       password: password
       priv: '*.*:ALL'
       state: present
-      login_user: debian
-      login_password: password
 
   - name: Install ufw
     apt:

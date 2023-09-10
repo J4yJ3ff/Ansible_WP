@@ -1,13 +1,10 @@
 ---
-
 - name: Wordpress Playbook
   hosts: all
-  user: debian
   become: yes
 
 
   tasks:
-
   - name: Install Apache2 and PHP package then Update repo index
     apt:
       name: 
@@ -22,7 +19,6 @@
         - python3
         - python3-pexpect
         - python3-mysqldb
-        - python-pip
       state: latest
       force_apt_get: yes
 
@@ -31,7 +27,7 @@
       name: apache2
       state: started
 
-  - name: Install MySQL Server
+  - name: "Install MySQL Server Community"
     apt: 
       name: 
         - default-mysql-server
@@ -42,23 +38,80 @@
       name: mariadb
       state: started
 
-  - name: Creating a User
-    mysql_user:
-      name: root
-      host: localhost
-      password: password
+  - name: Removes anonymous user account for localhost
+    community.mysql.mysql_user:
       login_user: root
+      login_password: 'password'
+      name: ''
+      host: localhost
+      state: absent
+      login_unix_socket: /run/mysqld/mysqld.sock
+
+  - name: Removes all anonymous user accounts
+    community.mysql.mysql_user:
+      name: ''
+      host_all: true
+      state: absent
+
+  - name: Create database user with name 'debian' and password 'password' with all database privileges
+    community.mysql.mysql_user:
+      name: debian
+      password: password
+      priv: '*.*:ALL'
+      state: present
+      login_user: debian
       login_password: password
-      check_implicit_admin: yes
-      priv: '*.*:ALL,GRANR'
-      service: present 
+
+  - name: Install ufw
+    apt:
+      name: ufw
+      state: latest
+
+  - name: Enable UFW
+    community.general.ufw:
+      state: enabled
+      policy: allow
+
+  - name: UFW Configuration
+    ufw: 
+      rule: allow
+      port: '80'
+      proto: tcp
 
   - name: Create a db called Wordpress
-    mysql_db:
+    community.mysql.mysql_db:
       name: wordpress
       state: present
 
   - name: Reload privilege tables
     command: mysql -e "FLUSH PRIVILEGES;"
 
+  - name: Download and Unpack Latest Wordpress
+    unarchive:
+      src: https://wordpress.org/latest.tar.gz
+      dest: /var/www/html
+      remote_src: yes
+      creates: /var/www/html/wordpress
+
+#  - name: Install Wordpress
+#   get_url:
+#      url: "https://wordpress.org/latest.tar.gz"
+#      dest: /var/www/html/
+
+#  - name: Unpack Wordpress Archive
+#    ansible.builtin.unarchive:
+#      src: /var/www/html/wordpress-6.3.1.tar.gz
+#      dest: /var/www/html/
+#      remote_src: no
+
+  - name: Wordpress Config file
+    template:
+      src: files/wp-config.php.j2
+      dest: /var/www/html/wordpress/wp-config.php
+
+
+  - name: Reload Apache
+    service:
+      name: apache2
+      state: started
 

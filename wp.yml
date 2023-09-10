@@ -89,9 +89,9 @@
   - name: Download and Unpack Latest Wordpress
     unarchive:
       src: https://wordpress.org/latest.tar.gz
-      dest: /var/www/html
+      dest: /var/www/html/
       remote_src: yes
-      creates: /var/www/html/wordpress
+      creates: /var/www/html/
 
 #  - name: Install Wordpress
 #   get_url:
@@ -104,11 +104,22 @@
 #      dest: /var/www/html/
 #      remote_src: no
 
-  - name: Wordpress Config file
-    template:
-      src: files/wp-config.php.j2
-      dest: /var/www/html/wordpress/wp-config.php
+#  - name: Wordpress Config file
+#    template:
+#      src: files/wp-config.php.j2
+#      dest: /var/www/html/wordpress/wp-config.php
 
+  - name: Set up a virtual host
+    template: 
+      src: files/apache.conf.j2
+      dest: /etc/apache2/sites-available/wordpress.conf
+
+  - name: Enable new site
+    command: a2ensite wordpress
+ 
+  - name: Disable default apache site
+    command: a2dissite 000-default.conf
+  
 
   - name: Reload Apache
     service:

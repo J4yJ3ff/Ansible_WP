@@ -89,7 +89,7 @@
       src: https://wordpress.org/latest.tar.gz
       dest: /var/www/html/
       remote_src: yes
-      creates: /var/www/html/
+      creates: /var/www/html/wordpress
 
 #  - name: Install Wordpress
 #   get_url:
@@ -102,10 +102,10 @@
 #      dest: /var/www/html/
 #      remote_src: no
 
-#  - name: Wordpress Config file
-#    template:
-#      src: files/wp-config.php.j2
-#      dest: /var/www/html/wordpress/wp-config.php
+  - name: Wordpress Config file
+    template:
+      src: files/wp-config.php.j2
+      dest: /var/www/html/wordpress/wp-config.php
 
   - name: Set up a virtual host
     template: 
@@ -124,3 +124,11 @@
       name: apache2
       state: started
 
+  - name: Remove index.html file
+    file:
+      path: /var/www/html/index.html
+      state: absent
+
+  - name: Move files
+    shell: mv /var/www/html/wordpress/* /var/www/html/
+  

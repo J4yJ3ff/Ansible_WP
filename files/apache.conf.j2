@@ -1,12 +1,11 @@
 <VirtualHost *:80>
    ServerAdmin webmaster@localhost
-   ServerName html
-   ServerAlias www.html
-   DocumentRoot /var/www/html
+   ServerName 139.59.37.248 
+   DocumentRoot /var/www/html/wordpress
    ErrorLog ${APACHE_LOG_DIR}/error.log
    CustomLog ${APACHE_LOG_DIR}/access.log combined
 
-   <Directory /var/www/html>
+   <Directory /var/www/html/wordpress>
          Options -Indexes
    </Directory>
 
